@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-jenkins-tests
+  namespace: jenkins
+  annotations:
+    "helm.sh/hook": test
+data:
+  run.sh: |-
+    #!/usr/bin/env bats
+
+    @test "Testing Jenkins UI is accessible" {
+      # Wait for Jenkins to be ready
+      sleep 30
+      curl --retry 5 --retry-delay 10 --fail "http://my-jenkins.jenkins.svc.cluster.local:8080/login"
+    }

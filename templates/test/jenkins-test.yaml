@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "my-jenkins-ui-test"
+  namespace: jenkins
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  initContainers:
+    - name: "test-framework"
+      image: "docker.io/bats/bats:1.11.1"
+      command:
+        - "bash"
+        - "-c"
+      args:
+        - |
+          # Copy bats to tools dir
+          set -ex
+          cp -R /opt/bats /tools/bats/
+      volumeMounts:
+      - mountPath: /tools
+        name: tools
+  containers:
+    - name: my-jenkins-ui-test
+      image: "docker.io/bats/bats:1.11.1"
+      command: ["/tools/bats/bin/bats", "-t", "/tests/run.sh"]
+      volumeMounts:
+      - mountPath: /tests
+        name: tests
+        readOnly: true
+      - mountPath: /tools
+        name: tools
+  volumes:
+  - name: tests
+    configMap:
+      name: my-jenkins-tests
+  - name: tools
+    emptyDir: {}
+  restartPolicy: Never
