@@ -1,0 +1,5 @@
+jenkins:
+  adminUser: admin
+  adminPassword: your-password
+  storage:
+    size: 8Gi
